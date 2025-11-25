@@ -32,6 +32,79 @@ __Procedure__:
 
 7 — Demodulate each isolated channel (coherent) and low-pass filter to recover baseband
 
+__Program__:
+```
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Time variables
+Fs = 5000            # Sampling frequency
+t = np.arange(0, 0.04, 1/Fs)
+
+# Message signals
+Am1, Fm1 = 1, 50     # Message 1
+Am2, Fm2 = 1, 100    # Message 2
+
+m1 = Am1 * np.sin(2*np.pi*Fm1*t)
+m2 = Am2 * np.sin(2*np.pi*Fm2*t)
+
+# Carrier signals for FDM
+Fc1 = 500
+Fc2 = 1200
+
+c1 = np.cos(2*np.pi*Fc1*t)
+c2 = np.cos(2*np.pi*Fc2*t)
+
+# Modulation (DSB-SC)
+s1 = m1 * c1
+s2 = m2 * c2
+
+# Multiplexed signal (FDM combined)
+fdm_signal = s1 + s2
+
+# Demodulation
+d1 = fdm_signal * c1
+d2 = fdm_signal * c2
+
+# Low-pass filter (simple moving average)
+def low_pass_filter(sig, N=200):
+    return np.convolve(sig, np.ones(N)/N, mode='same')
+
+dm1 = low_pass_filter(d1)
+dm2 = low_pass_filter(d2)
+
+# Plot all signals
+plt.figure(figsize=(12, 18))
+
+plt.subplot(6,1,1)
+plt.plot(t, m1)
+plt.title("Message Signal m1 (50 Hz)")
+
+plt.subplot(6,1,2)
+plt.plot(t, m2)
+plt.title("Message Signal m2 (100 Hz)")
+
+plt.subplot(6,1,3)
+plt.plot(t, fdm_signal)
+plt.title("Multiplexed FDM Signal")
+
+plt.subplot(6,1,4)
+plt.plot(t, dm1)
+plt.title("Demodulated Signal 1 (Recovered m1)")
+
+plt.subplot(6,1,5)
+plt.plot(t, dm2)
+plt.title("Demodulated Signal 2 (Recovered m2)")
+
+plt.tight_layout()
+plt.show()
+```
+
 __Output_:
+<img width="1190" height="1512" alt="image" src="https://github.com/user-attachments/assets/20a62368-8dd6-4f42-8bc9-a86d7f781f4d" />
+
 
 __Result__:
+
+![WhatsApp Image 2025-11-26 at 12 04 23 AM](https://github.com/user-attachments/assets/478fba99-8e9d-425c-ba9c-b71b08dbf0b5)
+
